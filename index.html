@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pay with Paystack</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://js.paystack.co/v2/inline.js"></script>
+  </head>
+  <body class="flex items-center justify-center h-screen bg-gray-100">
+    <div class="bg-white p-6 rounded shadow space-y-4 text-center w-80">
+      <input
+        type="email"
+        id="email"
+        placeholder="Enter your email"
+        class="border px-4 py-2 w-full rounded"
+      />
+      <input
+        type="number"
+        id="amount"
+        placeholder="Amount in Naira"
+        class="border px-4 py-2 w-full rounded"
+        oninput="updateDisplayAmount()"
+      />
+
+      <div id="displayAmount" class="text-lg font-bold text-gray-700"></div>
+
+      <button
+        onclick="payWithPaystack()"
+        class="w-full px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+      >
+        Pay Now
+      </button>
+    </div>
+
+    <script>
+      function updateDisplayAmount() {
+        const amount = document.getElementById("amount").value;
+        const display = document.getElementById("displayAmount");
+
+        if (amount && amount > 0) {
+          display.textContent = `Amount to Pay: ₦${Number(
+            amount
+          ).toLocaleString()}`;
+        } else {
+          display.textContent = "";
+        }
+      }
+
+      function payWithPaystack() {
+        const emailInput = document.getElementById("email");
+        const amountInput = document.getElementById("amount");
+        const display = document.getElementById("displayAmount");
+
+        const email = emailInput.value;
+        const amount = amountInput.value;
+
+        if (!email || !amount || amount <= 0) {
+          alert("Please enter a valid email and amount.");
+          return;
+        }
+
+        new PaystackPop().newTransaction({
+          key: "pk_test_a14149e90e58341b0cb27c26a53f65fd7809d409",
+          email,
+          amount: amount * 100,
+          onSuccess: (transaction) => {
+            console.log("Success:", transaction);
+            alert("Payment successful!");
+            emailInput.value = "";
+            amountInput.value = "";
+            display.textContent = "";
+          },
+          onCancel: () => console.log("Transaction cancelled"),
+          onError: (error) => console.log("Error:", error.message),
+        });
+      }
+    </script>
+  </body>
+</html>
